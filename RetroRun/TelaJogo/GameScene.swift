@@ -23,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var botaoDePause = SKSpriteNode()
     let obstaculoPai = SKNode()
     
-
+    
     
     var obstaculoFixo1 = SKSpriteNode()
     var obstaculoFixo2 = SKSpriteNode()
@@ -51,7 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func didMove(to view: SKView) {
-
+        
         self.physicsWorld.contactDelegate = self
         
         if EfeitoSonoro.musicaEstaTocando {
@@ -118,7 +118,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         obstaculoFixo2.physicsBody?.categoryBitMask = CollisionMask.obstaculoFixo
         obstaculoFixo2.physicsBody?.contactTestBitMask = CollisionMask.characterMask
         obstaculoFixo2.physicsBody?.collisionBitMask = CollisionMask.semColisao
-
+        
         
         obstaculoFixo3.physicsBody = SKPhysicsBody(texture: obstaculoFixo3.texture!, size: obstaculoFixo3.texture!.size())
         obstaculoFixo3.physicsBody?.isDynamic = false
@@ -126,7 +126,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         obstaculoFixo3.physicsBody?.categoryBitMask = CollisionMask.obstaculoFixo
         obstaculoFixo3.physicsBody?.contactTestBitMask = CollisionMask.characterMask
         obstaculoFixo3.physicsBody?.collisionBitMask = CollisionMask.semColisao
-
+        
         
         obstaculoFixo4.physicsBody = SKPhysicsBody(texture: obstaculoFixo4.texture!, size: obstaculoFixo4.texture!.size())
         obstaculoFixo4.physicsBody?.isDynamic = false
@@ -134,7 +134,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         obstaculoFixo4.physicsBody?.categoryBitMask = CollisionMask.obstaculoFixo
         obstaculoFixo4.physicsBody?.contactTestBitMask = CollisionMask.characterMask
         obstaculoFixo4.physicsBody?.collisionBitMask = CollisionMask.semColisao
-
+        
         
         obstaculoFixo5.physicsBody = SKPhysicsBody(texture: obstaculoFixo5.texture!, size: obstaculoFixo5.texture!.size())
         obstaculoFixo5.physicsBody?.isDynamic = false
@@ -142,7 +142,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         obstaculoFixo5.physicsBody?.categoryBitMask = CollisionMask.obstaculoFixo
         obstaculoFixo5.physicsBody?.contactTestBitMask = CollisionMask.characterMask
         obstaculoFixo5.physicsBody?.collisionBitMask = CollisionMask.semColisao
-
+        
         
         //Configurando a largada
         largada.physicsBody?.categoryBitMask = CollisionMask.largada
@@ -154,7 +154,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let aumentarOpacidade = SKAction.fadeAlpha(to: 1.0, duration: 1.0)
         let acaoDePiscarTapToJump = SKAction.repeatForever(SKAction.sequence([diminuirOpacidade, aumentarOpacidade]))
         tapToJumpLabel?.run(acaoDePiscarTapToJump)
-
+        
         pauseMenu = PauseMenu(gameLayer: self)
         addChild(pauseMenu!)
         pauseMenu?.isHidden = true
@@ -178,6 +178,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
 //Extension com funcoes nao padrões da gameScene
 extension GameScene{
+    
     // Função que adiciona os obstáculos individualmente
     func adicionarObstaculo(x: CGFloat, down: Bool, pai: SKNode) {
         let obstaculo = Obstaculo()
@@ -224,286 +225,243 @@ extension GameScene{
         if pausado {
             self.isPaused = true
         }
-        
-
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        //Verificando se o tapJump ja desapareceu e caso não, remover apos a oitava pontuação
+        setTapToJumpLabel()
+        
+        for touch in touches {
+            let location = touch.location(in: self)
+            let nodesAtLocation = nodes(at: location)
             
-            //Verificando se o tapJump ja desapareceu e caso não, remover apos a oitava pontuação
-            if let tapLabel = tapToJumpLabel{
-                if pontuacao.pontuacao > 8{
-                    let animacaoFade = SKAction.fadeAlpha(to: 0.5, duration: 2.0)
-                    let removerLabel = SKAction.run {
-                        tapLabel.removeFromParent()
-                    }
-                    let sequencia  = SKAction.sequence([animacaoFade, removerLabel])
-                    tapLabel.run(sequencia)
-                    tapToJumpLabel = nil
-                }
-            }
-            
-            for touch in touches {
-                let location = touch.location(in: self)
-                let nodesAtLocation = nodes(at: location)
-                
-                // Verificando se o personagem está no chão
-                for node in nodesAtLocation {
-                    if node.name == "menuPause" {
-                        if let pauseMenu = pauseMenu {
-                            if !pausado {
-                                pauseMenu.show()
-                                pausado = true
-                                if EfeitoSonoro.musicaEstaTocando {
-                                    EfeitoSonoro.musicaDeFundo?.volume = 0.1
-                                }
+            // Verificando se o personagem está no chão
+            for node in nodesAtLocation {
+                if node.name == "menuPause" {
+                    if let pauseMenu = pauseMenu {
+                        if !pausado {
+                            pauseMenu.show()
+                            pausado = true
+                            if EfeitoSonoro.musicaEstaTocando {
+                                EfeitoSonoro.musicaDeFundo?.volume = 0.1
                             }
-                            // som de tap ao clicar no pause
-                            EfeitoSonoro.tocarSomTap01(self)
                         }
+                        // som de tap ao clicar no pause
+                        EfeitoSonoro.tocarSomTap01(self)
+                    }
+                    
+                } else  {
+                    // Verificação para saber quando pode dar outro pulo
+                    
+                    // se não estiver pulando E se não estiver clicando no botão de pause
+                    if houveContato && !botaoDePause.contains(location) {
+                        pular(personagem, plataforma)
+                        houveContato = false
                         
-                    } else  {
-                        // Verificação para saber quando pode dar outro pulo
-                        
-                        // se não estiver pulando E se não estiver clicando no botão de pause
-                        if houveContato && !botaoDePause.contains(location) {
-                            pular(personagem, plataforma)
-                            houveContato = false
-
-                            //Pontua o personagem e adiciona na Scene
-                            pontuacao.addPontuacaoPorPulo()
-                            record.text = "\(pontuacao.pontuacao)"
-                            recordBorda.text = "\(pontuacao.pontuacao)"
-                        }
-                    }
-                }
-            }
-        }
-
-        
-    
-        
-        //Definindo o contato com os obstáculos
-        func didBegin(_ contact: SKPhysicsContact) {
-            
-            // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
-            tempoDeteccao = Date.now.timeIntervalSince(inicioDeteccao)
-            
-            
-            // contato do personagem com a plataforma ===================================================
-            if contact.bodyA.categoryBitMask == CollisionMask.characterMask && contact.bodyB.categoryBitMask == CollisionMask.plataformMask || contact.bodyA.categoryBitMask == CollisionMask.plataformMask && contact.bodyB.categoryBitMask == CollisionMask.characterMask {
-                houveContato = true // Isso significa que o personagem já pode pular
-            }
-            
-            
-            
-            // 1a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
-            if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.redBlockMask {
-                
-                //Animação de batida com obstáculo móvel
-                animacaoPow(naPosicao: contact.bodyB.node!.parent!.parent!.position,
-                            emCena: self)
-
-                // Efeito sonoro de batida no obstáculo fixo
-                if EfeitoSonoro.toggleSonsEstaLigado {
-                    EfeitoSonoro.tocarSomHit(volume: 0.4)
-                }
-                
-                // Desliga a música da volta atual
-                if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
-                    EfeitoSonoro.pararTrilhaSonora()
-                }
-               
-                
-                // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
-                personagem.removeAllActions() // Remove todas as ações do personagem
-                personagem.seguir(plataforma, personagem)
-                
-                // Zera o numero de voltas e pontuação
-                pontuacao.pontuacao = 0
-                record.text = "\(pontuacao.pontuacao)"
-                recordBorda.text = "\(pontuacao.pontuacao)"
-
-                numeroDeVoltasContador.numVoltas = 0
-                voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
-                voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
-                
-                
-                // Reseta as ações do obstáculo
-                if let obstaculo = contact.bodyB.node?.parent as? Obstaculo {
-                    if !obstaculo.hasActions() {
-                        obstaculo.resetarAcoes()
-                    }
-                }
-                
-            // 2a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
-            } else if contact.bodyA.categoryBitMask == CollisionMask.redBlockMask && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
-                
-                //Animação de batida com obstáculo móvel
-                animacaoPow(naPosicao: contact.bodyA.node!.parent!.parent!.position,
-                            emCena: self)
-                
-                // Efeito sonoro de batida no obstáculo fixo
-                if EfeitoSonoro.toggleSonsEstaLigado {
-                    EfeitoSonoro.tocarSomHit(volume: 0.4)
-                }
-               
-                // Desliga a música da volta atual
-                if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
-                    EfeitoSonoro.pararTrilhaSonora()
-                }
-                
-                // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
-                personagem.removeAllActions() // Remove todas as ações do personagem
-                personagem.seguir(plataforma, personagem)
-                
-                
-                // Zera o numero de voltas e pontuação
-                pontuacao.pontuacao = 0
-                record.text = "\(pontuacao.pontuacao)"
-                recordBorda.text = "\(pontuacao.pontuacao)"
-
-                numeroDeVoltasContador.numVoltas = 0
-                voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
-                voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
-
-                
-                
-                // Reseta as ações do obstáculo
-                if let obstaculo = contact.bodyA.node?.parent as? Obstaculo {
-                    if !obstaculo.hasActions() {
-                        obstaculo.resetarAcoes()
-                    }
-                }
-            }
-            
-            
-            
-            // 1a Colisão com os obstaculos fixos =====================================================================
-            if contact.bodyB.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
-                
-                //Animação de batida com obstáculo móvel
-                animacaoPow(naPosicao: contact.bodyB.node!.position,
-                            emCena: self)
-                
-                // Efeito sonoro de batida no obstáculo fixo
-                if EfeitoSonoro.toggleSonsEstaLigado {
-                    EfeitoSonoro.tocarSomHit(volume: 0.4)
-                }
-                
-                // Desliga a música da volta atual
-                if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
-                    EfeitoSonoro.pararTrilhaSonora()
-                }
-                
-                // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
-                personagem.removeAllActions() // Remove todas as ações do personagem
-                personagem.seguir(plataforma, personagem)
-                
-                
-                
-                // Zera o numero de voltas e pontuação
-                numeroDeVoltasContador.numVoltas = 0
-                voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
-                voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
-
-                
-                pontuacao.pontuacao = 0
-                record.text = "\(pontuacao.pontuacao)"
-                recordBorda.text = "\(pontuacao.pontuacao)"
-
-                
-            // 2a Colisão com os obstaculos fixos =====================================================================
-            } else if contact.bodyA.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem{
-                
-                //Animação de batida com obstáculo móvel
-                animacaoPow(naPosicao: contact.bodyA.node!.position,
-                            emCena: self)
-                
-                // Efeito sonoro de batida no obstáculo fixo
-                if EfeitoSonoro.toggleSonsEstaLigado {
-                    EfeitoSonoro.tocarSomHit(volume: 0.4)
-                }
-               
-                // Desliga a música da volta atual
-                if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
-                    EfeitoSonoro.pararTrilhaSonora()
-                }
-                
-                // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
-                personagem.removeAllActions() // Remove todas as ações do personagem
-                personagem.seguir(plataforma, personagem)
-                
-                
-                // Zera o numero de voltas e pontuação
-                numeroDeVoltasContador.numVoltas = 0
-                voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
-                voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
-
-                
-                pontuacao.pontuacao = 0
-                record.text = "\(pontuacao.pontuacao)"
-                recordBorda.text = "\(pontuacao.pontuacao)"
-
-            }
-            
-            //Detectar contato com a largada e assim incrementar o numero de voltas ===============================
-            if contact.bodyA.categoryBitMask == CollisionMask.largada && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem || contact.bodyB.categoryBitMask == CollisionMask.largada && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
-                
-                // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
-                if tempoDeteccao < 0.55 { return }
-                inicioDeteccao = Date.now
-                
-                //Incrementa um ao numero de voltas
-                numeroDeVoltasContador.addVolta()
-                voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
-                voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
-                
-                
-                pontuacao.addPontuacaoVoltas()
-                record.text = "\(pontuacao.pontuacao)"
-                recordBorda.text = "\(pontuacao.pontuacao)"
-
-            }
-            
-            
-            // Detecção do contato do personagem com o Detector Seguro. Quando o personagem entrar em contato com o Detector Seguro, o obstáculo vai realizar uma última ação e, então, vai ficar parado.
-            if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.detectorSeguro {
-                // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
-                if tempoDeteccao < 0.55 { return }
-                inicioDeteccao = Date.now
-                
-                if let obstaculo = contact.bodyB.node?.parent as? Obstaculo {
-                    obstaculo.ultimaAcao()
-                }
-                
-            } else if contact.bodyA.categoryBitMask == CollisionMask.detectorSeguro && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
-                // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
-                if tempoDeteccao < 0.55 { return }
-                inicioDeteccao = Date.now
-                
-                if let obstaculo = contact.bodyA.node?.parent as? Obstaculo {
-                    obstaculo.ultimaAcao()
-                }
-            }
-        }
-        
-        func didEnd(_ contact: SKPhysicsContact) { // Quando a colisão termina
-            
-            // Detecção do fim do contato com o Detector Reset. Quando terminar o contato, o obstáculo vai voltar a se mexer constantemente.
-            if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.detectorReset {
-                if let obstaculo = contact.bodyB.node?.parent as? Obstaculo {
-                    if !obstaculo.hasActions() {
-                        obstaculo.resetarAcoes()
-                    }
-                }
-            } else if contact.bodyA.categoryBitMask == CollisionMask.detectorReset && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
-                if let obstaculo = contact.bodyA.node?.parent as? Obstaculo {
-                    if !obstaculo.hasActions() {
-                        obstaculo.resetarAcoes()
+                        //Pontua o personagem e adiciona na Scene
+                        pontuacao.addPontuacaoPorPulo()
+                        record.text = "\(pontuacao.pontuacao)"
+                        recordBorda.text = "\(pontuacao.pontuacao)"
                     }
                 }
             }
         }
     }
+    
+    
+    
+    
+    //Definindo o contato com os obstáculos
+    func didBegin(_ contact: SKPhysicsContact) {
+        
+        // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
+        tempoDeteccao = Date.now.timeIntervalSince(inicioDeteccao)
+        
+        
+        // contato do personagem com a plataforma ===================================================
+        if contact.bodyA.categoryBitMask == CollisionMask.characterMask && contact.bodyB.categoryBitMask == CollisionMask.plataformMask || contact.bodyA.categoryBitMask == CollisionMask.plataformMask && contact.bodyB.categoryBitMask == CollisionMask.characterMask {
+            houveContato = true // Isso significa que o personagem já pode pular
+        }
+        
+        
+        
+        // 1a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
+        if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.redBlockMask {
+            
+            configureContactMobileObstacle(contact: contact, contactBody: contact.bodyB)
+            
+            // 2a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
+        } else if contact.bodyA.categoryBitMask == CollisionMask.redBlockMask && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
+            
+            configureContactMobileObstacle(contact: contact, contactBody: contact.bodyA)
+        }
+        
+        
+        
+        // 1a Colisão com os obstaculos fixos =====================================================================
+        if contact.bodyB.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
+            
+            configureContactFixedObstacle(contact: contact, contactBody: contact.bodyB)
+            
+            // 2a Colisão com os obstaculos fixos =====================================================================
+        } else if contact.bodyA.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem{
+            
+            configureContactFixedObstacle(contact: contact, contactBody: contact.bodyA)
+        }
+        
+        
+        
+        //Detectar contato com a largada e assim incrementar o numero de voltas ===============================
+        if contact.bodyA.categoryBitMask == CollisionMask.largada && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem || contact.bodyB.categoryBitMask == CollisionMask.largada && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
+            
+            countNumberOfLaps()
+            
+        }
+        
+        
+        // Detecção do contato do personagem com o Detector Seguro. Quando o personagem entrar em contato com o Detector Seguro, o obstáculo vai realizar uma última ação e, então, vai ficar parado.
+        if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.detectorSeguro {
+            // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
+            if tempoDeteccao < 0.55 { return }
+            inicioDeteccao = Date.now
+            
+            if let obstaculo = contact.bodyB.node?.parent as? Obstaculo {
+                obstaculo.ultimaAcao()
+            }
+            
+        } else if contact.bodyA.categoryBitMask == CollisionMask.detectorSeguro && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
+            // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
+            if tempoDeteccao < 0.55 { return }
+            inicioDeteccao = Date.now
+            
+            if let obstaculo = contact.bodyA.node?.parent as? Obstaculo {
+                obstaculo.ultimaAcao()
+            }
+        }
+    }
+    
+    func didEnd(_ contact: SKPhysicsContact) { // Quando a colisão termina
+        
+        // Detecção do fim do contato com o Detector Reset. Quando terminar o contato, o obstáculo vai voltar a se mexer constantemente.
+        if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.detectorReset {
+            if let obstaculo = contact.bodyB.node?.parent as? Obstaculo {
+                if !obstaculo.hasActions() {
+                    obstaculo.resetarAcoes()
+                }
+            }
+        } else if contact.bodyA.categoryBitMask == CollisionMask.detectorReset && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
+            if let obstaculo = contact.bodyA.node?.parent as? Obstaculo {
+                if !obstaculo.hasActions() {
+                    obstaculo.resetarAcoes()
+                }
+            }
+        }
+    }
+}
 
+
+
+//Definindo as acoes que irao acontecer dentro das funcoes padroes da gameScene (DidBegin , Update...)
+extension GameScene{
+    
+    //Pega qual corpo teve contato e se ele é o corpo A ou B para assim realizar as ações
+    func configureContactMobileObstacle(contact : SKPhysicsContact, contactBody : SKPhysicsBody){
+        //Animação de batida com obstáculo móvel
+        animacaoPow(naPosicao: contactBody.node!.parent!.parent!.position,
+                    emCena: self)
+        
+        // Efeito sonoro de batida no obstáculo fixo
+        if EfeitoSonoro.toggleSonsEstaLigado {
+            EfeitoSonoro.tocarSomHit(volume: 0.4)
+        }
+        
+        // Desliga a música da volta atual
+        if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
+            EfeitoSonoro.pararTrilhaSonora()
+        }
+        
+        
+        // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
+        personagem.seguir(plataforma, personagem)
+        
+        // Zera o numero de voltas e pontuação
+        pontuacao.pontuacao = 0
+        record.text = "\(pontuacao.pontuacao)"
+        recordBorda.text = "\(pontuacao.pontuacao)"
+        
+        numeroDeVoltasContador.numVoltas = 0
+        voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
+        voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
+        
+        
+        // Reseta as ações do obstáculo
+        if let obstaculo = contactBody.node?.parent as? Obstaculo {
+            if !obstaculo.hasActions() {
+                obstaculo.resetarAcoes()
+            }
+        }
+    }
+    
+    //Pega qual corpo teve contato e se ele é o corpo A ou B para assim realizar as ações
+    func configureContactFixedObstacle(contact : SKPhysicsContact, contactBody : SKPhysicsBody){
+        //Animação de batida com obstáculo móvel
+        animacaoPow(naPosicao: contactBody.node!.position,
+                    emCena: self)
+        
+        // Efeito sonoro de batida no obstáculo fixo
+        if EfeitoSonoro.toggleSonsEstaLigado {
+            EfeitoSonoro.tocarSomHit(volume: 0.4)
+        }
+        
+        // Desliga a música da volta atual
+        if EfeitoSonoro.toggleMusicaEstaLigado && EfeitoSonoro.musicaEstaTocando {
+            EfeitoSonoro.pararTrilhaSonora()
+        }
+        
+        // REINICIAR AÇÕES DO PERSONAGEM APÓS COLIDIR COM OBSTÁCULO MÓVEL
+        personagem.seguir(plataforma, personagem)
+        
+        
+        // Zera o numero de voltas e pontuação
+        numeroDeVoltasContador.numVoltas = 0
+        voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
+        voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
+        
+        
+        pontuacao.pontuacao = 0
+        record.text = "\(pontuacao.pontuacao)"
+        recordBorda.text = "\(pontuacao.pontuacao)"
+    }
+    
+    
+    func setTapToJumpLabel(){
+        if let tapLabel = tapToJumpLabel{
+            if pontuacao.pontuacao > 8{
+                let animacaoFade = SKAction.fadeAlpha(to: 0.5, duration: 2.0)
+                let removerLabel = SKAction.run {
+                    tapLabel.removeFromParent()
+                }
+                let sequencia  = SKAction.sequence([animacaoFade, removerLabel])
+                tapLabel.run(sequencia)
+                tapToJumpLabel = nil
+            }
+        }
+    }
+    
+    func countNumberOfLaps(){
+        // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
+        if tempoDeteccao < 0.55 { return }
+        inicioDeteccao = Date.now
+        
+        //Incrementa um ao numero de voltas
+        numeroDeVoltasContador.addVolta()
+        voltasLabel.text = "\(numeroDeVoltasContador.numVoltas)"
+        voltasLabelBorda.text = "\(numeroDeVoltasContador.numVoltas)"
+        
+        
+        pontuacao.addPontuacaoVoltas()
+        record.text = "\(pontuacao.pontuacao)"
+        recordBorda.text = "\(pontuacao.pontuacao)"
+    }
+}
