@@ -34,39 +34,7 @@ class TelaInicial : SKScene{
     
     override func didMove(to view: SKView) {
         
-        // Tocar trilha de fundo ao abrir o jogo
-        EfeitoSonoro.tocarTrilhaSonora(volumeInicial: 0.0, volumeFinal: 0.2, duracaoFade: 5.0)
-        
-        botaoCreditos = childNode(withName: "botaoCreditos") as! SKSpriteNode
-        parteTrasFita = childNode(withName: "parteTrasFita") as! SKSpriteNode
-        fita = childNode(withName: "fita") as! SKSpriteNode
-        walkman = childNode(withName: "walkman") as! SKSpriteNode
-        botao1 = childNode(withName: "botao1") as! SKSpriteNode
-        botao2 = childNode(withName: "botao2") as! SKSpriteNode
-        botao3 = childNode(withName: "botao3") as! SKSpriteNode
-        dragToStart = childNode(withName: "dragToStart") as! SKSpriteNode
-        diamondPontuacao = childNode(withName: "diamondPontuacao") as! SKSpriteNode
-        simboloVoltas = childNode(withName: "voltasSimbolo") as! SKSpriteNode
-        
-        
-        // Mostra os Records de pontuação total e de número de voltas na tela inicial
-        let record = PontuacaoLogica.pegarRecorde()
-        labelRecord = childNode(withName: "record") as! SKLabelNode
-        labelRecord.text = "\(record)"
-        
-        _ = PontuacaoLogica.pegarRecorde()
-        labelRecordSombra = childNode(withName: "sombraPontuacao") as! SKLabelNode
-        labelRecordSombra.text = "\(record)"
-        
-        
-        
-        let recordVoltas = PontuacaoLogica.pegarRecordVoltas()
-        labelRecordVoltas = childNode(withName: "recordNumeroVoltas") as! SKLabelNode
-        labelRecordVoltas.text = "\(recordVoltas)"
-        
-        _ = PontuacaoLogica.pegarRecordVoltas()
-        labelRecordVoltasSombra = childNode(withName: "sombraVoltas") as! SKLabelNode
-        labelRecordVoltasSombra.text = "\(recordVoltas)"
+        setupInitialScreen()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -132,6 +100,49 @@ class TelaInicial : SKScene{
         animacaoFita()
     }
 }
+
+
+//Extension que contem a função de definir a view com a posição e valores dos elementos
+extension TelaInicial{
+    
+    func setupInitialScreen(){
+        // Tocar trilha de fundo ao abrir o jogo
+        EfeitoSonoro.tocarTrilhaSonora(volumeInicial: 0.0, volumeFinal: 0.2, duracaoFade: 5.0)
+        
+        botaoCreditos = childNode(withName: "botaoCreditos") as! SKSpriteNode
+        parteTrasFita = childNode(withName: "parteTrasFita") as! SKSpriteNode
+        fita = childNode(withName: "fita") as! SKSpriteNode
+        walkman = childNode(withName: "walkman") as! SKSpriteNode
+        botao1 = childNode(withName: "botao1") as! SKSpriteNode
+        botao2 = childNode(withName: "botao2") as! SKSpriteNode
+        botao3 = childNode(withName: "botao3") as! SKSpriteNode
+        dragToStart = childNode(withName: "dragToStart") as! SKSpriteNode
+        diamondPontuacao = childNode(withName: "diamondPontuacao") as! SKSpriteNode
+        simboloVoltas = childNode(withName: "voltasSimbolo") as! SKSpriteNode
+        
+        
+        // Mostra os Records de pontuação total e de número de voltas na tela inicial
+        let record = PontuacaoLogica.pegarRecorde()
+        labelRecord = childNode(withName: "record") as! SKLabelNode
+        labelRecord.text = "\(record)"
+        
+        _ = PontuacaoLogica.pegarRecorde()
+        labelRecordSombra = childNode(withName: "sombraPontuacao") as! SKLabelNode
+        labelRecordSombra.text = "\(record)"
+        
+        
+        
+        let recordVoltas = PontuacaoLogica.pegarRecordVoltas()
+        labelRecordVoltas = childNode(withName: "recordNumeroVoltas") as! SKLabelNode
+        labelRecordVoltas.text = "\(recordVoltas)"
+        
+        _ = PontuacaoLogica.pegarRecordVoltas()
+        labelRecordVoltasSombra = childNode(withName: "sombraVoltas") as! SKLabelNode
+        labelRecordVoltasSombra.text = "\(recordVoltas)"
+    }
+}
+
+
 
 //Extension contem todas as funções com animações da tela inicial
 extension TelaInicial{

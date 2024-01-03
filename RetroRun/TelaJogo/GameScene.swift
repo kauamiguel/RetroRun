@@ -286,12 +286,12 @@ extension GameScene{
         
         
         
-        // 1a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
+        // Colisao com obstaculo fixo se o obstaculo for o body A
         if contact.bodyA.categoryBitMask == personagem.categoriasPersonagem && contact.bodyB.categoryBitMask == CollisionMask.redBlockMask {
             
             configureContactMobileObstacle(contact: contact, contactBody: contact.bodyB)
             
-            // 2a Detecção da colisão do personagem com o Obstáculo MÓVEL ==============================================
+            // Colisao com obstaculo movel se o obstaculo for o body A
         } else if contact.bodyA.categoryBitMask == CollisionMask.redBlockMask && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem {
             
             configureContactMobileObstacle(contact: contact, contactBody: contact.bodyA)
@@ -299,12 +299,12 @@ extension GameScene{
         
         
         
-        // 1a Colisão com os obstaculos fixos =====================================================================
+        // Colisao com obstaculo fixo se o obstaculo for o body B
         if contact.bodyB.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
             
             configureContactFixedObstacle(contact: contact, contactBody: contact.bodyB)
             
-            // 2a Colisão com os obstaculos fixos =====================================================================
+            // Colisao com obstaculo fixo se o obstaculo for o body A
         } else if contact.bodyA.categoryBitMask == CollisionMask.obstaculoFixo && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem{
             
             configureContactFixedObstacle(contact: contact, contactBody: contact.bodyA)
@@ -316,8 +316,8 @@ extension GameScene{
         if contact.bodyA.categoryBitMask == CollisionMask.largada && contact.bodyB.categoryBitMask == personagem.categoriasPersonagem || contact.bodyB.categoryBitMask == CollisionMask.largada && contact.bodyA.categoryBitMask == personagem.categoriasPersonagem{
             
             countNumberOfLaps()
-            
         }
+        
         
         
         // Detecção do contato do personagem com o Detector Seguro. Quando o personagem entrar em contato com o Detector Seguro, o obstáculo vai realizar uma última ação e, então, vai ficar parado.
@@ -340,6 +340,7 @@ extension GameScene{
             }
         }
     }
+    
     
     func didEnd(_ contact: SKPhysicsContact) { // Quando a colisão termina
         
@@ -403,6 +404,8 @@ extension GameScene{
         }
     }
     
+    
+    
     //Pega qual corpo teve contato e se ele é o corpo A ou B para assim realizar as ações
     func configureContactFixedObstacle(contact : SKPhysicsContact, contactBody : SKPhysicsBody){
         //Animação de batida com obstáculo móvel
@@ -448,6 +451,8 @@ extension GameScene{
             }
         }
     }
+    
+    
     
     func countNumberOfLaps(){
         // Código para detectar apenas 1 contato. Sem ele, o mesmo contato é detectado 2 vezes
